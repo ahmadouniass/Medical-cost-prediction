@@ -1,2 +1,9 @@
 pytest
 ruff
+fastapi
+uvicorn[standard]
+pydantic
+joblib
+pandas
+numpy
+scikit-learn
