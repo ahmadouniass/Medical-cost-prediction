@@ -1,0 +1,296 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Prévision des coûts médicaux — Interface</title>
+  <meta name="description" content="Interface web pour prédire les coûts médicaux via une API FastAPI." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+
+<body>
+  <header class="topbar">
+    <div class="container topbar-inner">
+      <div class="brand">
+        <div class="logo" aria-hidden="true">MC</div>
+        <div class="brand-text">
+          <div class="brand-title">Medical Cost Prediction</div>
+          <div class="brand-subtitle">Interface web • API FastAPI</div>
+        </div>
+      </div>
+
+      <div class="topbar-actions">
+        <button id="themeBtn" class="btn btn-ghost" type="button" aria-label="Basculer le thème">
+          Thème
+        </button>
+        <a class="btn btn-ghost" href="#about">À propos</a>
+        <a class="btn btn-primary" href="#predict">Prédire</a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- HERO -->
+    <section class="hero">
+      <div class="container hero-grid">
+        <div class="hero-left">
+          <div class="badge">Modèle ML déployé • API publique</div>
+          <h1>Prévision des coûts médicaux<br><span class="gradient-text">simple, rapide, propre</span></h1>
+          <p class="lead">
+            Saisis les caractéristiques d’un individu, puis obtiens une estimation du coût médical.
+            Le site appelle l’API et affiche une prédiction en temps réel.
+          </p>
+
+          <div class="hero-cards">
+            <div class="mini-card">
+              <div class="mini-card-title">Endpoint</div>
+              <div class="mono" id="apiBasePreview">—</div>
+            </div>
+            <div class="mini-card">
+              <div class="mini-card-title">Statut API</div>
+              <div class="status" id="apiStatus">
+                <span class="dot dot-muted"></span>
+                <span>Non vérifié</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="hero-actions">
+            <button id="checkHealthBtn" class="btn btn-ghost" type="button">Vérifier /health</button>
+            <a class="btn btn-primary" href="#predict">Aller au formulaire</a>
+          </div>
+
+        </div>
+
+        <div class="hero-right">
+          <div class="panel">
+            <div class="panel-header">
+              <div class="panel-title">Résumé</div>
+              <div class="panel-subtitle">Ce que fait le système</div>
+            </div>
+            <div class="panel-body">
+              <ol class="steps">
+                <li><span class="step-num">1</span> Tu remplis les variables (age, bmi, etc.).</li>
+                <li><span class="step-num">2</span> Le site envoie un JSON à POST /predict.</li>
+                <li><span class="step-num">3</span> L’API charge le Pipeline et renvoie predicted_cost.</li>
+              </ol>
+
+              <div class="divider"></div>
+
+              <div class="small-grid">
+                <div class="small">
+                  <div class="small-label">Prétraitement</div>
+                  <div class="small-value">Inclus dans le Pipeline</div>
+                </div>
+                <div class="small">
+                  <div class="small-label">Modèle</div>
+                  <div class="small-value">Gradient Boosting (régression)</div>
+                </div>
+                <div class="small">
+                  <div class="small-label">Sortie</div>
+                  <div class="small-value">Coût prédit (USD)</div>
+                </div>
+                <div class="small">
+                  <div class="small-label">Déploiement</div>
+                  <div class="small-value">Render + FastAPI</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel subtle">
+            <div class="panel-body">
+                <br>
+              <div class="subtle-title">Lien rapide</div>
+              <a id="docsLink" class="link" href="#" target="_blank" rel="noreferrer">Ouvrir Swagger UI (/docs)</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PREDICT -->
+    <section id="predict" class="section">
+      <div class="container">
+        <div class="section-head">
+          <h2>Faire une prédiction</h2>
+          <p>Renseigne les champs puis clique sur “Prédire”.</p>
+        </div>
+
+        <div class="grid-2">
+          <form id="predictForm" class="card" novalidate>
+            <div class="card-head">
+              <div>
+                <div class="card-title">Entrées</div>
+                <div class="card-subtitle">Les champs doivent correspondre au format attendu par l’API</div>
+              </div>
+              <div class="pill">POST /predict</div>
+            </div>
+
+            <div class="card-body">
+              <div class="field">
+                <label for="apiBase">API Base URL</label>
+                <input id="apiBase" type="url" placeholder="https://xxxx.onrender.com" required />
+                <small>Exemple : https://medical-cost-prediction-gh3u.onrender.com</small>
+              </div>
+
+              <div class="field">
+                <label for="apiKey">Clé API (optionnel)</label>
+                <input id="apiKey" type="password" placeholder="X-API-Key" />
+                <small>Si l’API est protégée, renseigne la clé. Sinon laisse vide.</small>
+              </div>
+
+              <div class="grid-3">
+                <div class="field">
+                  <label for="age">Âge</label>
+                  <input id="age" type="number" min="0" max="120" value="45" required />
+                </div>
+
+                <div class="field">
+                  <label for="bmi">BMI</label>
+                  <input id="bmi" type="number" step="0.1" min="10" max="60" value="27.3" required />
+                </div>
+
+                <div class="field">
+                  <label for="children">Enfants</label>
+                  <input id="children" type="number" min="0" max="20" value="2" required />
+                </div>
+              </div>
+
+              <div class="grid-3">
+                <div class="field">
+                  <label for="sex">Sexe</label>
+                  <select id="sex" required>
+                    <option value="female" selected>female</option>
+                    <option value="male">male</option>
+                  </select>
+                </div>
+
+                <div class="field">
+                  <label for="smoker">Fumeur</label>
+                  <select id="smoker" required>
+                    <option value="no" selected>no</option>
+                    <option value="yes">yes</option>
+                  </select>
+                </div>
+
+                <div class="field">
+                  <label for="region">Région</label>
+                  <select id="region" required>
+                    <option value="northwest" selected>northwest</option>
+                    <option value="northeast">northeast</option>
+                    <option value="southwest">southwest</option>
+                    <option value="southeast">southeast</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="actions">
+                <button id="predictBtn" class="btn btn-primary" type="submit">
+                  <span class="btn-text">Prédire</span>
+                  <span class="spinner" aria-hidden="true"></span>
+                </button>
+                <button id="resetBtn" class="btn btn-ghost" type="button">Réinitialiser</button>
+              </div>
+
+              <div id="formMsg" class="form-msg" role="status" aria-live="polite"></div>
+            </div>
+          </form>
+
+          <div class="card">
+            <div class="card-head">
+              <div>
+                <div class="card-title">Résultat</div>
+                <div class="card-subtitle">Sortie renvoyée par l’API</div>
+              </div>
+              <div class="pill">predicted_cost</div>
+            </div>
+
+            <div class="card-body">
+              <div class="result">
+                <div class="result-label">Coût médical estimé</div>
+                <div class="result-value" id="resultValue">—</div>
+                <div class="result-hint" id="resultHint">Lance une prédiction pour afficher le montant.</div>
+              </div>
+
+              <div class="divider"></div>
+
+              <div class="mono-block">
+                <div class="mono-block-title">Payload envoyé</div>
+                <pre id="payloadPreview">{}</pre>
+              </div>
+
+              <div class="mono-block">
+                <div class="mono-block-title">Réponse API</div>
+                <pre id="responsePreview">{}</pre>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="disclaimer">
+          Avertissement : une prédiction ML est une estimation basée sur des données historiques.
+          Elle ne remplace pas une analyse médicale ou financière réelle.
+        </div>
+      </div>
+    </section>
+
+    <!-- ABOUT -->
+    <section id="about" class="section alt">
+      <div class="container">
+        <div class="section-head">
+          <h2>À propos du modèle</h2>
+        </div>
+        <div class="grid-3">
+          <div class="info-card">
+            <div class="info-title">Type de problème</div>
+            <p class="info-text">Régression supervisée : prédire un coût continu à partir de caractéristiques.</p>
+          </div>
+
+          <div class="info-card">
+            <div class="info-title">Pipeline scikit-learn</div>
+            <p class="info-text">
+              Le modèle est sauvegardé en <span class="mono">joblib</span> sous forme de <span class="mono">Pipeline</span> :
+              le prétraitement (encodage des catégories, etc.) est inclus et réutilisé à l’identique.
+            </p>
+          </div>
+
+          <div class="info-card">
+            <div class="info-title">Modèle utilisé</div>
+            <p class="info-text">
+              Gradient Boosting Regressor (meilleur modèle sélectionné selon vos métriques d’évaluation).
+              Sortie : <span class="mono">predicted_cost</span>.
+            </p>
+          </div>
+        </div>
+
+        <div class="panel wide">
+          <div class="panel-header">
+            <div class="panel-title">Limites & bonnes pratiques</div>
+          </div>
+          <div class="panel-body">
+            <ul class="bullets">
+              <li>Les prédictions dépendent des données d’entraînement et peuvent être biaisées.</li>
+              <li>La généralisation hors distribution (profils rares) peut être faible.</li>
+              <li>Vérifie la validité des entrées avant d’envoyer à l’API.</li>
+                <li>Utilise les métriques d’évaluation pour juger de la performance du modèle.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer-inner">
+      <div>© Projet ML — Medical Cost Prediction</div>
+      <div class="mono">FastAPI • Render • scikit-learn</div>
+    </div>
+  </footer>
+
+  <script src="./script.js"></script>
+</body>
+</html>
