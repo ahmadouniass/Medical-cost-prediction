@@ -3,6 +3,7 @@ import joblib
 import pandas as pd
 from fastapi import FastAPI, Header, HTTPException
 from pydantic import BaseModel, Field
+from fastapi.middleware.cors import CORSMiddleware
 
 # Chemin du modèle (modifiable via variable d'environnement)
 MODEL_PATH = os.getenv("MODEL_PATH", "models/best_gradient_boost_model.joblib")
@@ -25,6 +26,17 @@ class PatientFeatures(BaseModel):
     children: int = Field(..., ge=0, le=20)
     smoker: str
     region: str
+
+
+#Ajout du middleware CORS pour permettre les requêtes depuis n'importe quelle origine
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 @app.get("/health")
 def health():
