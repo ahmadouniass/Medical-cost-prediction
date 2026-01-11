@@ -3,12 +3,13 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Prévision des coûts médicaux — Interface</title>
+  <title>Prévision des coûts médicaux – Interface</title>
   <meta name="description" content="Interface web pour prédire les coûts médicaux via une API FastAPI." />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="./styles.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 
 <body>
@@ -40,8 +41,8 @@
           <div class="badge">Modèle ML déployé • API publique</div>
           <h1>Prévision des coûts médicaux<br><span class="gradient-text">simple, rapide, propre</span></h1>
           <p class="lead">
-            Saisis les caractéristiques d’un individu, puis obtiens une estimation du coût médical.
-            Le site appelle l’API et affiche une prédiction en temps réel.
+            Saisis les caractéristiques d'un ou plusieurs individus, ou importe un fichier CSV.
+            Le site appelle l'API et affiche les prédictions en temps réel.
           </p>
 
           <div class="hero-cards">
@@ -73,9 +74,9 @@
             </div>
             <div class="panel-body">
               <ol class="steps">
-                <li><span class="step-num">1</span> Tu remplis les variables (age, bmi, etc.).</li>
-                <li><span class="step-num">2</span> Le site envoie un JSON à POST /predict.</li>
-                <li><span class="step-num">3</span> L’API charge le Pipeline et renvoie predicted_cost.</li>
+                <li><span class="step-num">1</span> Tu remplis les variables ou importes un CSV.</li>
+                <li><span class="step-num">2</span> Le site valide et envoie les données à POST /predict.</li>
+                <li><span class="step-num">3</span> L'API renvoie predicted_cost pour chaque entrée.</li>
               </ol>
 
               <div class="divider"></div>
@@ -87,7 +88,7 @@
                 </div>
                 <div class="small">
                   <div class="small-label">Modèle</div>
-                  <div class="small-value">Gradient Boosting (régression)</div>
+                  <div class="small-value">Gradient Boosting</div>
                 </div>
                 <div class="small">
                   <div class="small-label">Sortie</div>
@@ -103,7 +104,6 @@
 
           <div class="panel subtle">
             <div class="panel-body">
-                <br>
               <div class="subtle-title">Lien rapide</div>
               <a id="docsLink" class="link" href="#" target="_blank" rel="noreferrer">Ouvrir Swagger UI (/docs)</a>
             </div>
@@ -117,103 +117,306 @@
       <div class="container">
         <div class="section-head">
           <h2>Faire une prédiction</h2>
-          <p>Renseigne les champs puis clique sur “Prédire”.</p>
+          <p>Choisis ton mode de prédiction : simple, multiple ou par fichier CSV.</p>
         </div>
 
         <div class="grid-2">
-          <form id="predictForm" class="card" novalidate>
+          <!-- LEFT CARD: INPUTS -->
+          <div class="card">
             <div class="card-head">
               <div>
                 <div class="card-title">Entrées</div>
-                <div class="card-subtitle">Les champs doivent correspondre au format attendu par l’API</div>
+                <div class="card-subtitle">Choisis le mode de prédiction</div>
               </div>
               <div class="pill">POST /predict</div>
             </div>
 
             <div class="card-body">
+              <!-- API URL (read-only) -->
               <div class="field">
-                <label for="apiBase">API Base URL</label>
-                <input id="apiBase" type="url" placeholder="https://xxxx.onrender.com" required />
-                <small>Exemple : https://medical-cost-prediction-gh3u.onrender.com</small>
+                <label for="apiBase">API Base URL (configurée)</label>
+                <input id="apiBase" type="url" value="https://medical-cost-prediction-gh3u.onrender.com" disabled />
+                <small>L'URL de l'API est fixée pour garantir la sécurité.</small>
               </div>
 
+              <!-- API Key -->
               <div class="field">
-                <label for="apiKey">Clé API (optionnel)</label>
+                <label for="apiKey">Clé API</label>
                 <input id="apiKey" type="password" placeholder="X-API-Key" />
-                <small>Si l’API est protégée, renseigne la clé. Sinon laisse vide.</small>
+                <small>L'API est protégée, renseigne la clé.</small>
               </div>
 
-              <div class="grid-3">
-                <div class="field">
-                  <label for="age">Âge</label>
-                  <input id="age" type="number" min="0" max="120" value="45" required />
-                </div>
-
-                <div class="field">
-                  <label for="bmi">BMI</label>
-                  <input id="bmi" type="number" step="0.1" min="10" max="60" value="27.3" required />
-                </div>
-
-                <div class="field">
-                  <label for="children">Enfants</label>
-                  <input id="children" type="number" min="0" max="20" value="2" required />
-                </div>
+              <!-- Tabs -->
+              <div class="tabs">
+                <button class="tab active" data-tab="single">Prédiction simple</button>
+                <button class="tab" data-tab="multiple">Plusieurs personnes</button>
+                <button class="tab" data-tab="file">Fichier CSV</button>
               </div>
 
-              <div class="grid-3">
-                <div class="field">
-                  <label for="sex">Sexe</label>
-                  <select id="sex" required>
-                    <option value="female" selected>female</option>
-                    <option value="male">male</option>
-                  </select>
-                </div>
+              <!-- TAB 1: Single Prediction -->
+              <div class="tab-content active" id="tab-single">
+                <form id="singleForm" novalidate>
+                  <div class="grid-3">
+                    <div class="field">
+                      <label for="age">Âge</label>
+                      <input id="age" type="number" min="0" max="120" value="45" required />
+                    </div>
 
-                <div class="field">
-                  <label for="smoker">Fumeur</label>
-                  <select id="smoker" required>
-                    <option value="no" selected>no</option>
-                    <option value="yes">yes</option>
-                  </select>
-                </div>
+                    <div class="field">
+                      <label for="bmi">BMI</label>
+                      <input id="bmi" type="number" step="0.1" min="10" max="60" value="27.3" required />
+                    </div>
 
-                <div class="field">
-                  <label for="region">Région</label>
-                  <select id="region" required>
-                    <option value="northwest" selected>northwest</option>
-                    <option value="northeast">northeast</option>
-                    <option value="southwest">southwest</option>
-                    <option value="southeast">southeast</option>
-                  </select>
-                </div>
+                    <div class="field">
+                      <label for="children">Enfants</label>
+                      <input id="children" type="number" min="0" max="20" value="2" required />
+                    </div>
+                  </div>
+
+                  <div class="grid-3">
+                    <div class="field">
+                      <label for="sex">Sexe</label>
+                      <select id="sex" required>
+                        <option value="female" selected>female</option>
+                        <option value="male">male</option>
+                      </select>
+                    </div>
+
+                    <div class="field">
+                      <label for="smoker">Fumeur</label>
+                      <select id="smoker" required>
+                        <option value="no" selected>no</option>
+                        <option value="yes">yes</option>
+                      </select>
+                    </div>
+
+                    <div class="field">
+                      <label for="region">Région</label>
+                      <select id="region" required>
+                        <option value="northwest" selected>northwest</option>
+                        <option value="northeast">northeast</option>
+                        <option value="southwest">southwest</option>
+                        <option value="southeast">southeast</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div class="actions">
+                    <button id="predictSingleBtn" class="btn btn-primary" type="submit">
+                      <span class="btn-text">Prédire</span>
+                      <span class="spinner" aria-hidden="true"></span>
+                    </button>
+                    <button type="button" class="btn btn-ghost" onclick="resetSingleForm()">Réinitialiser</button>
+                  </div>
+                </form>
               </div>
 
-              <div class="actions">
-                <button id="predictBtn" class="btn btn-primary" type="submit">
-                  <span class="btn-text">Prédire</span>
-                  <span class="spinner" aria-hidden="true"></span>
-                </button>
-                <button id="resetBtn" class="btn btn-ghost" type="button">Réinitialiser</button>
+              <!-- TAB 2: Multiple Predictions -->
+              <div class="tab-content" id="tab-multiple">
+                <form id="multipleForm" novalidate>
+                  <div id="personEntries">
+                    <!-- Dynamic person entries will be added here -->
+                  </div>
+                  
+                  <button type="button" class="btn-add-person" onclick="addPersonEntry()">+ Ajouter une personne</button>
+
+                  <div class="actions">
+                    <button id="predictMultipleBtn" class="btn btn-primary" type="submit">
+                      <span class="btn-text">Prédire tout</span>
+                      <span class="spinner" aria-hidden="true"></span>
+                    </button>
+                    <button type="button" class="btn btn-ghost" onclick="resetMultipleForm()">Tout effacer</button>
+                  </div>
+                </form>
+              </div>
+
+              <!-- TAB 3: File Upload -->
+              <div class="tab-content" id="tab-file">
+                <form id="fileForm" novalidate>
+                  <div class="file-upload" id="fileUpload">
+                    <input type="file" id="csvFile" accept=".csv,.xlsx,.json" />
+                    <div class="upload-icon">📁</div>
+                    <div class="upload-text">Clique ou glisse un fichier ici</div>
+                    <div class="upload-hint">Formats acceptés: CSV, Excel (.xlsx), JSON</div>
+                  </div>
+
+                  <div id="fileInfo" style="display: none;">
+                    <div class="file-info">
+                      <div>
+                        <span class="file-name" id="fileName"></span>
+                        <span class="file-size" id="fileSize"></span>
+                      </div>
+                      <button type="button" class="btn-remove" onclick="removeFile()">Supprimer</button>
+                    </div>
+                  </div>
+
+                  <!-- Column Mapping Section -->
+                  <div id="columnMapping" style="display: none; margin-top: 24px;">
+                    <div class="panel">
+                      <div class="panel-header">
+                        <div class="panel-title">Mappage des colonnes</div>
+                        <div class="panel-subtitle">Associe les colonnes de ton fichier aux variables requises</div>
+                      </div>
+                      <div class="panel-body">
+                        <div class="grid-2">
+                          <div class="field">
+                            <label for="col-age">Âge</label>
+                            <select id="col-age" required>
+                              <option value="">-- Sélectionner --</option>
+                            </select>
+                          </div>
+
+                          <div class="field">
+                            <label for="col-sex">Sexe</label>
+                            <select id="col-sex" required>
+                              <option value="">-- Sélectionner --</option>
+                            </select>
+                          </div>
+
+                          <div class="field">
+                            <label for="col-bmi">BMI</label>
+                            <select id="col-bmi" required>
+                              <option value="">-- Sélectionner --</option>
+                            </select>
+                          </div>
+
+                          <div class="field">
+                            <label for="col-children">Enfants</label>
+                            <select id="col-children" required>
+                              <option value="">-- Sélectionner --</option>
+                            </select>
+                          </div>
+
+                          <div class="field">
+                            <label for="col-smoker">Fumeur</label>
+                            <select id="col-smoker" required>
+                              <option value="">-- Sélectionner --</option>
+                            </select>
+                          </div>
+
+                          <div class="field">
+                            <label for="col-region">Région</label>
+                            <select id="col-region" required>
+                              <option value="">-- Sélectionner --</option>
+                            </select>
+                          </div>
+                        </div>
+
+                        <button type="button" class="btn btn-ghost" style="margin-top: 12px; width: 100%;" onclick="autoMapColumns()">
+                          🔗 Mapping automatique
+                        </button>
+                      </div>
+                    </div>
+
+                    <!-- Data Preview -->
+                    <div class="panel" style="margin-top: 16px;">
+                      <div class="panel-header">
+                        <div class="panel-title">Aperçu des données</div>
+                        <div class="panel-subtitle" id="previewSubtitle">Premières lignes du fichier</div>
+                      </div>
+                      <div class="panel-body">
+                        <div class="results-table-container">
+                          <table class="results-table" id="previewTable">
+                            <thead id="previewTableHead"></thead>
+                            <tbody id="previewTableBody"></tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Data Quality Check -->
+                    <div id="dataQualityCheck" class="panel" style="margin-top: 16px; display: none;">
+                      <div class="panel-header">
+                        <div class="panel-title">Contrôle qualité</div>
+                        <div class="panel-subtitle">Vérification des types de données</div>
+                      </div>
+                      <div class="panel-body">
+                        <div id="qualityResults"></div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="actions" style="margin-top: 20px;">
+                    <button id="validateDataBtn" class="btn btn-ghost" type="button" style="display: none;" onclick="validateFileData()">
+                      ✓ Valider les données
+                    </button>
+                    <button id="predictFileBtn" class="btn btn-primary" type="submit" disabled>
+                      <span class="btn-text">Prédire depuis le fichier</span>
+                      <span class="spinner" aria-hidden="true"></span>
+                    </button>
+                  </div>
+                </form>
+
+                <div style="margin-top: 20px;">
+                  <small style="display: block; margin-bottom: 8px; color: var(--muted);">
+                    <strong>💡 Exemples de formats acceptés :</strong>
+                  </small>
+                  <details style="margin-bottom: 12px;">
+                    <summary style="cursor: pointer; color: var(--muted); font-size: 13px; margin-bottom: 8px;">📄 CSV</summary>
+                    <pre style="font-size: 11px;">age,sex,bmi,children,smoker,region
+45,female,27.3,2,no,northwest
+32,male,28.5,0,yes,southeast</pre>
+                  </details>
+                  
+                  <details style="margin-bottom: 12px;">
+                    <summary style="cursor: pointer; color: var(--muted); font-size: 13px; margin-bottom: 8px;">📊 JSON</summary>
+                    <pre style="font-size: 11px;">[
+  {"age": 45, "sex": "female", "bmi": 27.3, ...},
+  {"age": 32, "sex": "male", "bmi": 28.5, ...}
+]</pre>
+                  </details>
+                </div>
               </div>
 
               <div id="formMsg" class="form-msg" role="status" aria-live="polite"></div>
             </div>
-          </form>
+          </div>
 
+          <!-- RIGHT CARD: RESULTS -->
           <div class="card">
             <div class="card-head">
               <div>
                 <div class="card-title">Résultat</div>
-                <div class="card-subtitle">Sortie renvoyée par l’API</div>
+                <div class="card-subtitle">Sortie renvoyée par l'API</div>
               </div>
               <div class="pill">predicted_cost</div>
             </div>
 
             <div class="card-body">
-              <div class="result">
+              <!-- Single result display -->
+              <div id="singleResult" class="result">
                 <div class="result-label">Coût médical estimé</div>
                 <div class="result-value" id="resultValue">—</div>
                 <div class="result-hint" id="resultHint">Lance une prédiction pour afficher le montant.</div>
+              </div>
+
+              <!-- Multiple results table -->
+              <div id="multipleResults" style="display: none;">
+                <div class="results-table-container">
+                  <table class="results-table">
+                    <thead>
+                      <tr>
+                        <th>#</th>
+                        <th>Âge</th>
+                        <th>Sexe</th>
+                        <th>BMI</th>
+                        <th>Enfants</th>
+                        <th>Fumeur</th>
+                        <th>Région</th>
+                        <th>Coût prédit</th>
+                      </tr>
+                    </thead>
+                    <tbody id="resultsTableBody">
+                    </tbody>
+                  </table>
+                </div>
+
+                <div class="export-actions">
+                  <button class="btn-export" onclick="exportToCSV()">
+                    📥 Télécharger CSV
+                  </button>
+                  <button class="btn btn-ghost" onclick="clearResults()">Effacer résultats</button>
+                </div>
               </div>
 
               <div class="divider"></div>
@@ -232,7 +435,7 @@
         </div>
 
         <div class="disclaimer">
-          Avertissement : une prédiction ML est une estimation basée sur des données historiques.
+          ⚠️ Avertissement : une prédiction ML est une estimation basée sur des données historiques.
           Elle ne remplace pas une analyse médicale ou financière réelle.
         </div>
       </div>
@@ -254,14 +457,14 @@
             <div class="info-title">Pipeline scikit-learn</div>
             <p class="info-text">
               Le modèle est sauvegardé en <span class="mono">joblib</span> sous forme de <span class="mono">Pipeline</span> :
-              le prétraitement (encodage des catégories, etc.) est inclus et réutilisé à l’identique.
+              le prétraitement (encodage des catégories, etc.) est inclus et réutilisé à l'identique.
             </p>
           </div>
 
           <div class="info-card">
             <div class="info-title">Modèle utilisé</div>
             <p class="info-text">
-              Gradient Boosting Regressor (meilleur modèle sélectionné selon vos métriques d’évaluation).
+              Gradient Boosting Regressor (meilleur modèle sélectionné selon vos métriques d'évaluation).
               Sortie : <span class="mono">predicted_cost</span>.
             </p>
           </div>
@@ -273,10 +476,10 @@
           </div>
           <div class="panel-body">
             <ul class="bullets">
-              <li>Les prédictions dépendent des données d’entraînement et peuvent être biaisées.</li>
+              <li>Les prédictions dépendent des données d'entraînement et peuvent être biaisées.</li>
               <li>La généralisation hors distribution (profils rares) peut être faible.</li>
-              <li>Vérifie la validité des entrées avant d’envoyer à l’API.</li>
-                <li>Utilise les métriques d’évaluation pour juger de la performance du modèle.</li>
+              <li>Vérifie la validité des entrées avant d'envoyer à l'API.</li>
+              <li>Utilise les métriques d'évaluation pour juger de la performance du modèle.</li>
             </ul>
           </div>
         </div>
@@ -286,7 +489,7 @@
 
   <footer class="footer">
     <div class="container footer-inner">
-      <div>© Projet ML — Medical Cost Prediction</div>
+      <div>© Projet ML – Medical Cost Prediction</div>
       <div class="mono">FastAPI • Render • scikit-learn</div>
     </div>
   </footer>
