@@ -1,7 +1,7 @@
 import os
 import sys
 from pathlib import Path
-
+import pandas as pd
 import pytest
 
 # FIXTURE : Identifie dynamiquement la racine du projet
@@ -62,4 +62,35 @@ def set_env_for_api(model_path: Path):
     os.environ["MODEL_PATH"] = str(model_path)
     
     # Définit une clé API par défaut pour les tests de sécurité
-    os.environ.setdefault("API_KEY", "test-secret")
+    os.environ.setdefault("API_KEY", "mon-secret")
+
+# URL de secours pointant vers le dataset original sur GitHub
+DATA_URL = "https://raw.githubusercontent.com/stedy/Machine-Learning-with-R-datasets/master/insurance.csv"
+
+def _load_insurance_df():
+    """
+    Charge le dataset insurance.csv de manière robuste.
+    Stratégie :
+      1) Tente de lire le fichier local (plus rapide, évite de dépendre du réseau).
+      2) Si absent, télécharge le fichier depuis l'URL (idéal pour l'intégration continue/CI).
+    """
+    # Construction du chemin vers le dossier 'data' à la racine du projet
+    local_path = os.path.join("data", "insurance.csv")
+    
+    # Vérification de l'existence du fichier sur le disque
+    if os.path.exists(local_path):
+        return pd.read_csv(local_path)
+
+    # Si le fichier n'existe pas localement (cas d'un serveur CI propre), 
+    # Pandas télécharge directement le CSV via l'URL.
+    return pd.read_csv(DATA_URL)
+
+
+@pytest.fixture(scope="session")
+def df():
+    """
+    Fixture Pytest qui fournit le DataFrame chargé à tous les tests.
+    scope="session" : Les données ne sont chargées qu'une seule fois pour 
+    tous les tests (gain de temps et de mémoire).
+    """
+    return _load_insurance_df()
