@@ -1,115 +1,110 @@
-## Charte Git (obligatoire)
+# 💊 Medical Cost Prediction
 
-1. **Interdiction de push direct sur `main`**  
-   → tout passe par **branche + Pull Request (PR)**.
+Projet de **Machine Learning** visant à prédire les **coûts médicaux individuels** à partir de caractéristiques socio-démographiques et comportementales (âge, sexe, IMC, tabagisme, région, etc.).
 
-2. **1 branche = 1 tâche**  
-   Nommage standard :
-   - `feature/eda`
-   - `feature/modeling`
-   - `feature/api`
-   - `chore/tests-ci-docs`
-   - `fix/xxx`
-
-3. **1 PR = 1 sujet**  
-   Pas de mélange EDA / API / Tests / CI dans une même PR.
-
-4. **PR petites et fréquentes**  
-   Plus une PR est petite, plus elle est facile à relire et à merger.
-
-5. **CI verte obligatoire avant merge**  
-   Les étapes **ruff + pytest** doivent passer.
-
-6. **Au moins 1 review obligatoire**  
-   Le lead ou un membre concerné valide la PR.
-
-7. **Messages de commit clairs**  
-   Formats recommandés :
-   - `Add ...`
-   - `Fix ...`
-   - `Docs ...`
-   - `Refactor ...`
-
-8. **Toujours se mettre à jour avant de commencer**  
-   On travaille sur un `main` à jour.
-
-9. **Les conflits sont corrigés par l’auteur de la PR**  
-   Celui qui ouvre la PR est responsable de la résolution.
-
-10. **Aucune donnée ou modèle lourd dans Git**  
-    Les dossiers `data/` et `models/` restent ignorés.
+Le projet couvre **l'ensemble du cycle Data Science** : exploration des données, préparation, modélisation, évaluation, tests de robustesse et déploiement via une **API FastAPI** consommée par une **interface web**.
 
 ---
 
-## Workflow Git — Commandes officielles
+## 🎯 Objectifs du projet
+- Construire un modèle de prédiction fiable des coûts médicaux  
+- Comparer plusieurs algorithmes de régression
+- Assurer la **reproductibilité** (pipelines, tests, artefacts)
+- Déployer le modèle via une **API REST**
+- Proposer une interface web simple pour l'utilisation du modèle
 
-### 0) Première fois (cloner le dépôt)
-```bash
-git https://github.com/ahmadouniass/Medical-cost-prediction.git
-cd Medical-cost-prediction
-````
+---
 
-### 1) Avant de commencer une tâche (obligatoire)
+## 🧠 Modélisation
+- Prétraitement via **Pipeline & ColumnTransformer**
+- Modèles testés :  
+  - Régression linéaire
+  - Régressions pénalisées  
+  - Random Forest  
+  - Gradient Boosting / XGBoost / LightGBM  
+- Sélection du meilleur modèle selon **RMSE**
+- Sauvegarde du pipeline du meilleur modèle (`best_gradient_boost_model.joblib`)
 
-```bash
-git checkout main
-git pull --rebase
+---
+
+## 🚀 Déploiement
+- **API** : FastAPI  
+- **Hébergement API** : Render  
+- **Interface web** : HTML / CSS / JavaScript (Netlify)  
+---
+
+## 🌐 Liens importants
+- 📄 **[Note technique (Canva)](https://www.canva.com/design/DAG9k7kWhFY/ZVeeoX8dsdsC_pgFgFbFBA/edit)**
+
+- 📊 **[Slides de présentation (Canva)](https://www.canva.com/design/DAG8tUKBnOY/e2V6SIHGZczz6SZgxg1djg/edit)**
+
+- 🔌 **[API FastAPI](https://medical-cost-prediction-gh3u.onrender.com)**
+
+- 🖥️ **[Interface Web](https://medical-cost-api.netlify.app/)**
+---
+
+## 📁 Organisation du répertoire
+
+```
+Medical-cost-prediction/
+│
+├── api/                            # API FastAPI pour l'inférence
+│   └── app.py                      # Point d'entrée de l'API
+│
+├── models/                         # Artefacts du Machine Learning
+│   └── best_gradient_boost_model.joblib           # Pipeline complet avec le meilleur modèle
+│
+├── notebooks/                      # Développement et expérimentation
+│   ├── EDA_full_codes.ipynb        # Analyse exploratoire complète des données
+│   └── Modélisation.ipynb          # Entraînement, comparaison et sélection du modèle
+│
+├── tests/                          # Tests automatisés (pytest)
+│   ├── conftest.py                 # Config globale et test sur la base
+│   ├── test_api_contract.py        # Tests des endpoints de l'API
+│   ├── test_categories_domain.py   # Validation des modalités catégorielles
+│   ├── test_data_quality.py        # Tests de qualité des données
+│   ├── test_eda_findings.py        # Vérification des constats issus de l'EDA
+│   ├── test_model_artifact.py      # Tests de chargement du modèle
+│   ├── test_payload_validation.py  # Validation des données d'entrée de l'API
+│   ├── test_repo_sanity.py         # Tests de cohérence globale du dépôt
+│   ├── test_schema_and_types.py    # Vérification des types et des schémas
+│   
+│
+├── web/                            # Interface web cliente
+│   ├── index.html                  # Page principale
+│   ├── styles.css                  # Styles de l'interface
+│   └── script.js                   # Appels à l'API et logique front-end
+│
+├── requirements.txt                # Dépendances d'exécution
+├── requirements-dev.txt            # Dépendances de développement et de tests
+├── README.md                       # Documentation du projet
+└── .gitignore                      # Fichiers ignorés par Git
 ```
 
-### 2) Créer une branche (1 tâche = 1 branche)
+---
 
-```bash
-git checkout -b feature/eda
-# ou feature/modeling
-# ou feature/api
-# ou chore/tests-ci-docs
-# ou fix/xxx
-```
+## 👥 Équipe projet
+Projet réalisé par un groupe de **5 membres** :
 
-### 3) Vérification locale (recommandée)
+- **[Mamady I BERETE](https://github.com/Kefimba)**
+- **[Gandwende Judicaël Oscar KAFANDO](https://github.com/Oscar-AS)**
+- **[Samba Sow](https://github.com/Samba99Sow)**
+- **[Khadidiatou Coulibaly](https://github.com/Khadidiatou1010)**
+- **[Ahmadou Niass](https://github.com/ahmadouniass)**
+---
 
-```bash
-ruff check .
-pytest -q
-```
+## 🧪 Tests & Qualité
+- Validation du schéma d'entrée
+- Vérification des catégories et domaines
+- Tests de chargement du modèle
+- Tests de cohérence des prédictions
+- Tests de santé de l'API (`/health`)
 
-### 4) Commit
+---
 
-```bash
-git add .
-git commit -m "Add EDA notebook"
-```
-
-### 5) Push de la branche
-
-```bash
-git push -u origin feature/eda
-```
-
-### 6) Pull Request (sur GitHub)
-
-* Base : `main`
-* Attendre **CI verte**
-* Demander **au moins 1 review**
-* Merge uniquement si la CI est verte
-
-### 7) Mettre à jour sa branche si `main` avance
-
-```bash
-git pull --rebase origin main
-git push
-```
-
-### 8) Après merge (se resynchroniser)
-
-```bash
-git checkout main
-git pull --rebase
-```
-
-### 9) Nettoyage local (optionnel)
-
-```bash
-git branch -d feature/eda
-```
-
+## 📌 Remarques
+Ce projet met l'accent sur :
+- la **rigueur méthodologique**
+- la **traçabilité des transformations**
+- la **séparation claire entraînement / inférence**
+- les bonnes pratiques de **déploiement ML**
