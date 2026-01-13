@@ -8,7 +8,9 @@ import pandas as pd            # construire un DataFrame compatible avec le mod�
 from fastapi import FastAPI, Header, HTTPException  # API + gestion headers + erreurs HTTP propres
 from pydantic import BaseModel, Field               # validation du JSON d’entrée (types + contraintes)
 from fastapi.middleware.cors import CORSMiddleware  # autoriser appels depuis un front web (CORS)
+from pathlib import Path
 
+BASE_DIR = Path(__file__).resolve().parent   
 # =========================
 # Configuration (via env)
 # =========================
@@ -16,11 +18,15 @@ from fastapi.middleware.cors import CORSMiddleware  # autoriser appels depuis un
 # Chemin du modèle (modifiable via variable d'environnement)
 # - Si la variable d'env MODEL_PATH existe -> on l'utilise
 # - Sinon -> valeur par défaut : "models/best_gradient_boost_model.joblib"
-MODEL_PATH = os.getenv("models/best_gradient_boost_model.joblib")
+DEFAULT_MODEL_PATH = (BASE_DIR.parent / "models" / "best_gradient_boost_model.joblib")
+MODEL_PATH = str(DEFAULT_MODEL_PATH)
 
 # Clé API stockée côté serveur (variable d'environnement)
 # Si API_KEY n’est pas définie dans l’environnement -> API ouverte sans authentification
 API_KEY = os.getenv("API_KEY")  # ex: "mon-secret"
+
+print("[DEBUG] Using MODEL_PATH:", MODEL_PATH)
+print("[DEBUG] Exists?:", Path(MODEL_PATH).exists())
 
 # Création de l’application FastAPI (nom affiché dans /docs)
 app = FastAPI(title="Medical Cost Prediction API")
