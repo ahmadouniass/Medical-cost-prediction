@@ -17,7 +17,7 @@ BASE_DIR = Path(__file__).resolve().parent
 
 # Chemin du modèle (modifiable via variable d'environnement)
 # - Sinon -> valeur par défaut : "models/best_gradient_boost_model.joblib"
-MODEL_PATH = "models/best_gradient_boost_model.joblib"
+MODEL_PATH = "best_gradient_boost_model.joblib"
 
 # Clé API stockée côté serveur (variable d'environnement)
 # Si API_KEY n’est pas définie dans l’environnement -> API ouverte sans authentification
