@@ -16,7 +16,7 @@ from fastapi.middleware.cors import CORSMiddleware  # autoriser appels depuis un
 # Chemin du modèle (modifiable via variable d'environnement)
 # - Si la variable d'env MODEL_PATH existe -> on l'utilise
 # - Sinon -> valeur par défaut : "models/best_gradient_boost_model.joblib"
-MODEL_PATH = os.getenv("MODEL_PATH", "models/best_gradient_boost_model.joblib")
+MODEL_PATH = os.getenv("../models/best_gradient_boost_model.joblib")
 
 # Clé API stockée côté serveur (variable d'environnement)
 # Si API_KEY n’est pas définie dans l’environnement -> API ouverte sans authentification
