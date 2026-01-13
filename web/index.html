@@ -442,49 +442,82 @@
     </section>
 
     <!-- ABOUT -->
-    <section id="about" class="section alt">
-      <div class="container">
-        <div class="section-head">
-          <h2>À propos du modèle</h2>
-        </div>
-        <div class="grid-3">
-          <div class="info-card">
-            <div class="info-title">Type de problème</div>
-            <p class="info-text">Régression supervisée : prédire un coût continu à partir de caractéristiques.</p>
-          </div>
+<!-- ABOUT -->
+<section id="about" class="section alt">
+  <div class="container">
+    <div class="section-head">
+      <h2>À propos du modèle</h2>
+    </div>
 
-          <div class="info-card">
-            <div class="info-title">Pipeline scikit-learn</div>
-            <p class="info-text">
-              Le modèle est sauvegardé en <span class="mono">joblib</span> sous forme de <span class="mono">Pipeline</span> :
-              le prétraitement (encodage des catégories, etc.) est inclus et réutilisé à l'identique.
-            </p>
-          </div>
-
-          <div class="info-card">
-            <div class="info-title">Modèle utilisé</div>
-            <p class="info-text">
-              Gradient Boosting Regressor (meilleur modèle sélectionné selon vos métriques d'évaluation).
-              Sortie : <span class="mono">predicted_cost</span>.
-            </p>
-          </div>
-        </div>
-
-        <div class="panel wide">
-          <div class="panel-header">
-            <div class="panel-title">Limites & bonnes pratiques</div>
-          </div>
-          <div class="panel-body">
-            <ul class="bullets">
-              <li>Les prédictions dépendent des données d'entraînement et peuvent être biaisées.</li>
-              <li>La généralisation hors distribution (profils rares) peut être faible.</li>
-              <li>Vérifie la validité des entrées avant d'envoyer à l'API.</li>
-              <li>Utilise les métriques d'évaluation pour juger de la performance du modèle.</li>
-            </ul>
-          </div>
-        </div>
+    <!-- 3 cards courtes (même taille) -->
+    <div class="grid-3">
+      <div class="info-card">
+        <div class="info-title">Type de problème</div>
+        <p class="info-text">
+          Régression supervisée : prédire un coût continu à partir de caractéristiques individuelles.
+        </p>
       </div>
-    </section>
+
+      <div class="info-card">
+        <div class="info-title">Pipeline scikit-learn</div>
+        <p class="info-text">
+          Le modèle est sauvegardé en <span class="mono">joblib</span> sous forme de
+          <span class="mono">Pipeline</span> : le prétraitement (encodage, etc.) est inclus et réutilisé
+          à l'identique.
+        </p>
+      </div>
+
+      <div class="info-card">
+        <div class="info-title">Modèle utilisé</div>
+        <p class="info-text">
+          <strong>Gradient Boosting</strong> pour estimer les coûts médicaux annuels.
+          Sortie API : <span class="mono">predicted_cost</span>.
+        </p>
+      </div>
+    </div>
+
+    <!-- ✅ Ton texte détaillé (au bon endroit) -->
+    <div class="panel wide" style="margin-top: 16px;">
+      <div class="panel-header">
+        <div class="panel-title">Détails méthodologiques</div>
+      </div>
+      <div class="panel-body">
+        <p class="info-text" style="margin-top:0;">
+          Cette application s’appuie sur un modèle de machine learning de type <strong>Gradient Boosting</strong>
+          conçu pour prédire les coûts médicaux annuels à partir de caractéristiques individuelles telles que
+          l’âge, l’IMC, le tabagisme, la région et la situation familiale.
+        </p>
+
+        <p class="info-text">
+          Pour améliorer la stabilité des prédictions et limiter l’influence des valeurs extrêmes, le modèle a été
+          entraîné sur une <strong>transformation logarithmique</strong> des coûts. Les résultats sont ensuite
+          automatiquement reconvertis à l’échelle originale.
+        </p>
+
+        <p class="info-text" style="margin-bottom:0;">
+          Une variable dérivée, <span class="mono">is_obese</span>, est calculée à partir de l’IMC afin de mieux
+          capturer l’impact de l’obésité sur les dépenses de santé.
+        </p>
+      </div>
+    </div>
+
+    <!-- Panel existant -->
+    <div class="panel wide" style="margin-top: 16px;">
+      <div class="panel-header">
+        <div class="panel-title">Limites & bonnes pratiques</div>
+      </div>
+      <div class="panel-body">
+        <ul class="bullets">
+          <li>Les prédictions dépendent des données d'entraînement et peuvent être biaisées.</li>
+          <li>La généralisation hors distribution (profils rares) peut être faible.</li>
+          <li>Vérifie la validité des entrées avant d'envoyer à l'API.</li>
+          <li>Utilise les métriques d'évaluation pour juger de la performance du modèle.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
   </main>
 
   <footer class="footer">

@@ -869,3 +869,23 @@ document.addEventListener("DOMContentLoaded", () => {
   $("multipleForm").addEventListener("submit", handleMultiplePredictions);
   $("fileForm").addEventListener("submit", handleFilePrediction);
 });
+
+function nudgeTabsBar() {
+  const el = document.getElementById("tabsBar");
+  if (!el) return;
+
+  const maxScroll = el.scrollWidth - el.clientWidth;
+  if (maxScroll <= 0) return;
+
+  const start = el.scrollLeft;
+  el.scrollLeft = Math.min(start + 60, maxScroll);
+
+  setTimeout(() => {
+    el.scrollLeft = start;
+  }, 250);
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  centerTabsBar();   // optionnel
+  nudgeTabsBar();    // optionnel mais très efficace
+});

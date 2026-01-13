@@ -1099,3 +1099,32 @@ details[open] summary {
 ::-webkit-scrollbar-thumb:hover {
   background: var(--text-tertiary);
 }
+
+/* wrapper */
+.tabs {
+  position: relative;
+  overflow-x: auto;
+  scrollbar-width: thin; /* Firefox */
+}
+
+/* fade hint */
+.tabs::before,
+.tabs::after {
+  content: "";
+  position: sticky;
+  top: 0;
+  width: 28px;
+  height: 100%;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.tabs::before {
+  left: 0;
+  background: linear-gradient(to right, var(--card), transparent);
+}
+
+.tabs::after {
+  right: 0;
+  background: linear-gradient(to left, var(--card), transparent);
+}
