@@ -60,9 +60,9 @@ Medical-cost-prediction/
 │
 ├── documentation/                  #Documentation du projet
 │   ├── HealthCostsPrediction._presentation.pdf   
-    ├── Health Costs Note technique.pdf 
-    ├── lien_vers_note_technique.txt
-    ├── lien_vers_le_canva.txt           
+│    ├── Health Costs Note technique.pdf 
+│    ├── lien_vers_note_technique.txt
+│    ├── lien_vers_le_canva.txt           
 ├── tests/                          # Tests automatisés (pytest)
 │   ├── conftest.py                 # Config globale et test sur la base
 │   ├── test_api_contract.py        # Tests des endpoints de l'API
