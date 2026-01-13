@@ -15,7 +15,6 @@ Autre point :
 # Imports
 # =========================
 import os                       # Lire des variables d'environnement (MODEL_PATH, API_KEY)
-from pathlib import Path        # Construire des chemins robustes (Windows/Linux/Render)
 import joblib                   # Charger le modèle sklearn sauvegardé (.joblib)
 import numpy as np              # np.where + np.expm1 (inverse de log1p)
 import pandas as pd             # Construire un DataFrame (format d'entrée standard sklearn)
