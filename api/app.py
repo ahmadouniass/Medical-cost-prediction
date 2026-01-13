@@ -25,6 +25,9 @@ MODEL_PATH = str(DEFAULT_MODEL_PATH)
 # Si API_KEY n’est pas définie dans l’environnement -> API ouverte sans authentification
 API_KEY = os.getenv("API_KEY")  # ex: "mon-secret"
 
+print("[DEBUG] Using MODEL_PATH:", MODEL_PATH)
+print("[DEBUG] Exists?:", Path(MODEL_PATH).exists())
+
 # Création de l’application FastAPI (nom affiché dans /docs)
 app = FastAPI(title="Medical Cost Prediction API")
 
