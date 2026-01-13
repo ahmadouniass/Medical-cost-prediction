@@ -38,7 +38,7 @@ Le projet couvre **l'ensemble du cycle Data Science** : exploration des données
 
 - 📊 **[Slides de présentation (Canva)](https://www.canva.com/design/DAG8tUKBnOY/e2V6SIHGZczz6SZgxg1djg/edit)**
 
-- 🔌 **[API FastAPI](https://medical-cost-prediction-gh3u.onrender.com)**
+- 🔌 **[API FastAPI](https://medical-cost-prediction-gh3u.onrender.com/health)**
 
 - 🖥️ **[Interface Web](https://medical-cost-api.netlify.app/)**
 ---
